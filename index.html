@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Discovering multi-scale metagenomic signatures through hierarchical organization of species</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Antoine BICHAT" />
+    <meta name="date" content="2020-12-09" />
+    <link href="libs/tabwid/tabwid.css" rel="stylesheet" />
+    <script src="libs/tabwid/tabwid.js"></script>
+    <link href="libs/font-awesome/css/fontawesome-all.min.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      TeX: {
+        Macros: {
+          NN: "{\\mathbb{N}}",
+          ZZ: "{\\mathbb{Z}}",
+          QQ: "{\\mathbb{Q}}",
+          RR: "{\\mathbb{R}}",
+          shiftset: "{\\mathcal{D}}",
+          dx: ["{\\mathrm{d}^{#1}\\mspace{-1mu}\\mathord{#2}}", 2, ""],
+          indic: "{\\unicode{x1D7D9}}",
+          prob: "\\mathop{\\mathbb{P}}",
+          esp: "\\mathop{\\mathbb{E}}",
+          var: "\\mathop{\\mathbb{V}\\text{ar}}",
+          cov: "\\mathop{\\mathbb{C}\\text{ov}}",
+          PP: ["{\\prob\\left({#1}\\right)}", 1],
+          EE: ["{\\esp\\left[{#1}\\right]}", 1],
+          VV: ["{\\var\\left[{#1}\\right]}", 1],
+          CC: ["{\\cov\\left[{#1}\\right]}", 1],
+          normal: ["{\\mathcal{N}\\left({#1},{#2}\\right)}", 2],
+          ou: ["{#1}_{\\text{ou}}", 1],
+          oui: ["{#1}_{\\text{ou},#2}", 2],
+          pv: "{\\mathfrak{p}}",
+          qv: "{\\mathfrak{q}}",
+          zs: "{\\mathfrak{z}}",
+          ts: "{\\mathfrak{t}}",
+          sign: "{\\mathfrak{s}}",
+          shifts: "{\\delta}",
+          optim: "{\\beta}",
+          param: "{\\theta}",
+          unif: ["{\\mathcal{U}\\left({#1}\\right)}", 1],
+          argmin: "\\mathop{\\mathrm{argmin}}",
+          diag: "\\mathop{\\mathrm{Diag}}",
+          rang: "\\mathop{\\mathrm{rang}}",
+          pa: "\\mathop{\\mathrm{pa}}",
+          mrca: "\\mathop{\\mathrm{mrca}}",
+          desc: "\\mathop{\\mathrm{desc}}",
+          warning: ["\\color{red}{{#1}}", 1]
+        }
+      }
+    });
+    </script>
+    <link rel="stylesheet" href="libs_upsaclay/upsaclay.css" type="text/css" />
+    <link rel="stylesheet" href="libs_upsaclay/upsaclay-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Discovering multi-scale metagenomic signatures through hierarchical organization of species
+## PhD defense
+### Antoine BICHAT
+### LaMME – Enterome
+### December 9, 2020
+
+---
+
+
+&lt;script&gt;
+var slideshow = remark.create({
+  highlightStyle: "github",
+  highlightLines: true,
+  countIncrementalSlides: false,
+  ratio: "16:10",
+  slideNumberFormat: function (current) {
+    final = this.getSlideByName("final").getSlideNumber()
+    if (current &lt;= final) {
+    return current + ' / ' + final;
+    } else {
+    return current;
+    }
+  },
+  navigation: {
+   scroll: false
+  }});
+&lt;/script&gt;
+
+
+
+
+
+
+
+
+
+
+
+&lt;br&gt;&lt;br&gt;
+
+&lt;table style="border:0px"&gt;
+&lt;tr&gt;
+&lt;td&gt;
+  &lt;center&gt;
+  &lt;img src="img/pp_ambroise.jpeg"/ width="150"&gt; &lt;br&gt;
+  C. Ambroise
+  &lt;/center&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;td&gt;
+  &lt;center&gt;
+  &lt;img src="img/pp_mariadassou.jpeg"/ width="150"&gt; &lt;br&gt;
+  M. Mariadassou
+  &lt;/center&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;td&gt;
+  &lt;center&gt;
+  &lt;img src="img/pp_plassais.jpeg"/ width="150"&gt; &lt;br&gt;
+  J. Plassais
+  &lt;/center&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;td&gt;
+  &lt;center&gt;
+  &lt;img src="img/pp_strozzi.jpeg"/ width="150"&gt; &lt;br&gt;
+  F. Strozzi
+  &lt;/center&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+
+
+&lt;br&gt;
+
+
+&lt;table style="border:0px"&gt;
+&lt;tr&gt;
+&lt;td&gt;
+  &lt;center&gt;
+  &lt;img src="img/logo_upsaclay.png"/ width="200"&gt;
+  &lt;/center&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;td&gt;
+  &lt;center&gt;
+  &lt;img src="img/logo_lamme.jpg"/ width="200"&gt;
+  &lt;/center&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;td&gt;
+  &lt;center&gt;
+  &lt;img src="img/logo_maiage.png"/ width="200"&gt;
+  &lt;/center&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;td&gt;
+  &lt;center&gt;
+  &lt;img src="img/logo_enterome.png"/ width="200"&gt;
+  &lt;/center&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+
+
+---
+class: inverse, center, middle
+
+# Context
+
+---
+name: microbiota
+# Microbiota
+
+_Ecological community of microorganisms that reside in an environmental niche._ 
+
+---
+template: microbiota
+count: false
+
+
+
+.footnote[📄 Ley Peterson, et al. [LPG06]; Flint Scott, et al. [Fli+12]; Canani Di Costanzo, et al. [Can+11]]
+
+
+.pull-left[
+
+#### For human gut
+
+* `\(10^{14}\)` bacterial cells in one gut...
+
+* ... weighting `\(2~kg\)`.
+
+* More than `\(1500\)` different species.
+
+* More than 10 millions unique genes.
+
+* Helpful for nutrient absorption  and anti inflammatory properties.
+
+]
+
+---
+template: microbiota
+count: false
+
+.footnote[📄 Ley Peterson, et al. [LPG06]; Flint Scott, et al. [Fli+12]; Canani Di Costanzo, et al. [Can+11] – 🖼  [lelivrescolaire.fr](https://www.lelivrescolaire.fr/books/6067633)]
+
+
+.pull-left[
+
+#### For human gut
+
+* `\(10^{14}\)` bacterial cells in one gut...
+
+* ... weighting `\(2~kg\)`.
+
+* More than `\(1500\)` different species.
+
+* More than 10 millions unique genes.
+
+* Helpful for nutrient absorption  and anti inflammatory properties.
+
+]
+
+.pull-right[
+&lt;center&gt;
+  &lt;img src="img/human_biots.png"/ width="350"&gt;
+&lt;/center&gt;
+]
+
+---
+# Microbiota everywhere
+
+
+.footnote[🖼 [MicrobiomeSupport](https://www.microbiomesupport.eu/infographics/)]
+
+&lt;center&gt;
+  &lt;img src="img/biomes.png"/ width="750"&gt;
+&lt;/center&gt;
+
+
+---
+# Sequencing
+
+
+.footnote[📄 Cryan O'Riordan, et al. [Cry+19]]
+
+
+&lt;center&gt;
+  &lt;img src="img/sequencing.jpeg"/ width="600"&gt;
+&lt;/center&gt;
+
+---
+# Abundance table
+
+
+* Matrix with `\(m\)` taxa and `\(p\)` samples.
+
+* Count or compositional data, with inflation in zero.
+
+* Correlation between abundances.
+
+--
+
+.footnote[📄 Brito Yilmaz, et al. [Bri+16]]
+
+.pull-left[
+<div class="tabwid"><table style='border-collapse:collapse;'><thead><tr style="overflow-wrap:break-word;"><td style="width:144px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;"></span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">S1</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">S2</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">S3</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">S4</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">S5</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">S6</span></p></td></tr></thead><tbody><tr style="overflow-wrap:break-word;"><td style="width:144px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:italic;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">Akkermansia muciniphila</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">934850</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">247037</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">181167</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:144px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:italic;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">Bacteroides dorei</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">89893</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">2567192</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">648639</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">8498</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:144px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:italic;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">Bifidobacterium longum</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">376119</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">30671</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">1292193</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">1830318</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:144px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:italic;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">Enterobacter cloacae</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">756064</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">12234</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">142652</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">2186</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">238175</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">535786</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:144px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:italic;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">Escherichia coli</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">256424</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">5551041</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">9905179</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">76052</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">70234</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">79805</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:144px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:italic;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">Klebsiella pneumoniae</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">1057187</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">515407</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">887678</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">1620535</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:144px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:italic;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">Megamonas hypermegale</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">27317</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:144px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:italic;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">Streptococcus anginosus</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">985</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(255, 0, 0, 1.00);background-color:transparent;">0</span></p></td><td style="width:54px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(190, 190, 190, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3px;padding-top:3px;padding-left:3px;padding-right:3px;background-color:transparent;"><span style="font-family:'Arial';font-size:11px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(102, 102, 102, 1.00);background-color:transparent;">19134</span></p></td></tr></tbody></table></div>
+]
+
+--
+
+.pull-right[
+&lt;center&gt;
+  &lt;img src="img/correlation.png"/ width="500"&gt;
+&lt;/center&gt;
+]
+
+
+---
+# Phylogeny 
+
+.footnote[📄 Brito Yilmaz, et al. [Bri+16]]
+
+* Tree with `\(m\)` leaves which describes the evolutionary history of the taxa.
+
+--
+
+* Associated with a patristic distance matrix `\(\left(d_{i,j}\right)_{i,j}\)`.
+
+&lt;center&gt;
+  &lt;img src="img/phylo_dist.png"/ width="750"&gt;
+&lt;/center&gt;
+
+---
+
+# Differential abundance studies
+
+&lt;center&gt;
+  &lt;img src="img/cohort.png"/ width="500"&gt;
+&lt;/center&gt;
+
+
+Used to find **associations** between microbiota and
+
+&lt;div style = "margin-top: -30px"&gt;&lt;/div&gt;
+
+&lt;table style="border:0px"&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;diet [Dav+14],&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;birth mode [Bok+16],&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;age [Yat+12],&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;pet owning [Kat+20],&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;tobacco [Ops+16],&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;antibiotics [Pal+18],&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Crohn's disease [Mor+12],&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;cirrhosis [Qin+14]&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;schizophrenia [Zhe+19]...&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/td&gt;
+&lt;/table&gt;
+
+
+---
+# Classical approach
+
+Vector `\(\pv \in \mathopen[0,1\mathclose]^m\)` of `\(p\)`-values, computed on each taxa independently.
+
+Wilcoxon and Kruskal-Wallis non-parametric tests can be used.
+
+--
+
+A taxon `\(i\)` is detected differentially abundant if `\(\pv_i &lt; \alpha\)`.
+
+Each taxon fall into one class of the confusion matrix:
+
+<div class="tabwid"><table style='border-collapse:collapse;'><tbody><tr style="overflow-wrap:break-word;"><td colspan="2" rowspan="2" style="width:54px;background-clip: padding-box;background-color:rgba(255, 255, 255, 1.00);vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;"></span></p></td><td colspan="2" style="width:54px;background-clip: padding-box;background-color:rgba(255, 255, 255, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">True condition</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:54px;background-clip: padding-box;background-color:rgba(255, 255, 255, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">Positive</span></p></td><td style="width:54px;background-clip: padding-box;background-color:rgba(255, 255, 255, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">Negative</span></p></td></tr><tr style="overflow-wrap:break-word;"><td rowspan="2" style="width:54px;background-clip: padding-box;background-color:rgba(255, 255, 255, 1.00);vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">Detection</span></p></td><td style="width:54px;background-clip: padding-box;background-color:rgba(255, 255, 255, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">Positive</span></p></td><td style="width:54px;background-clip: padding-box;background-color:rgba(160, 207, 99, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">TP</span></p></td><td style="width:54px;background-clip: padding-box;background-color:rgba(235, 82, 78, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">FP</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:54px;background-clip: padding-box;background-color:rgba(255, 255, 255, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">Negative</span></p></td><td style="width:54px;background-clip: padding-box;background-color:rgba(235, 82, 78, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">FN</span></p></td><td style="width:54px;background-clip: padding-box;background-color:rgba(160, 207, 99, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">TN</span></p></td></tr></tbody></table></div>
+
+--
+
+Under `\(\mathbb{H}_0\)`, `\(\pv_i \sim \mathcal{U}(\mathopen[0,1\mathclose])\)`.
+
+
+---
+# Multiple testing problem
+
+.footnote[🖼 [XKCD](https://xkcd.com/882)]
+
+&lt;table style="border:0px"&gt;
+&lt;tr&gt;
+&lt;td&gt;
+  &lt;center&gt;
+  &lt;img src="img/significant_1.png"/ height="450"&gt;
+  &lt;/center&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;td&gt;
+  &lt;center&gt;
+  &lt;img src="img/significant_2.png"/ height="450"&gt;
+  &lt;/center&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+
+---
+# TPR and FDR
+
+<div class="tabwid"><table style='border-collapse:collapse;'><tbody><tr style="overflow-wrap:break-word;"><td colspan="2" rowspan="2" style="width:54px;background-clip: padding-box;background-color:rgba(255, 255, 255, 1.00);vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;"></span></p></td><td colspan="2" style="width:54px;background-clip: padding-box;background-color:rgba(255, 255, 255, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">True condition</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:54px;background-clip: padding-box;background-color:rgba(255, 255, 255, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">Positive</span></p></td><td style="width:54px;background-clip: padding-box;background-color:rgba(255, 255, 255, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">Negative</span></p></td></tr><tr style="overflow-wrap:break-word;"><td rowspan="2" style="width:54px;background-clip: padding-box;background-color:rgba(255, 255, 255, 1.00);vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">Detection</span></p></td><td style="width:54px;background-clip: padding-box;background-color:rgba(255, 255, 255, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">Positive</span></p></td><td style="width:54px;background-clip: padding-box;background-color:rgba(160, 207, 99, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">TP</span></p></td><td style="width:54px;background-clip: padding-box;background-color:rgba(235, 82, 78, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">FP</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:54px;background-clip: padding-box;background-color:rgba(255, 255, 255, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">Negative</span></p></td><td style="width:54px;background-clip: padding-box;background-color:rgba(235, 82, 78, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">FN</span></p></td><td style="width:54px;background-clip: padding-box;background-color:rgba(160, 207, 99, 1.00);vertical-align: middle;border-bottom: 1.00px solid rgba(0, 0, 0, 1.00);border-top: 1.00px solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(0, 0, 0, 1.00);border-right: 1.00px solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Open Sans';font-size:25px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">TN</span></p></td></tr></tbody></table></div>
+
+True Positive Rate:
+
+`$$\text{TPR} = \frac{\text{TP}}{\text{TP} + \text{FN}}.$$`
+
+False Discovery Rate:
+
+`$$\text{FDP} = \frac{\text{FP}}{\text{TP} + \text{FP}}\text{, FDR}=\EE{\text{FDP}}.$$`
+
+---
+# Multiple testing problem correction
+
+.footnote[📄 Benjamini and Hochberg [BH95]]
+
+Correction with Benjamini-Hochberg procedure to respect an _a priori_ FDR : `\(\qv^{\text{bh}}\)`.
+
+--
+
+But it assumes independence between taxa and it is not respected.
+
+&lt;center&gt;
+  &lt;img src="img/correlation.png"/ width="250"&gt;
+&lt;/center&gt;
+
+---
+count: false
+# Multiple testing problem correction
+
+.footnote[📄 Benjamini and Hochberg [BH95]; Benjamini and Yekutieli [BY01]]
+
+Correction with Benjamini-Hochberg procedure to respect an _a priori_ FDR : `\(\qv^{\text{bh}}\)`.
+
+But it assumes independence between taxa and it is not respected.
+
+&lt;center&gt;
+  &lt;img src="img/correlation.png"/ width="250"&gt;
+&lt;/center&gt;
+
+One can use Benjamini-Yekutieli correction which does not make any assumption about dependence between taxa but 
+
+ * it's too conservative,
+ 
+ * we want to correct explicitly for correlation between taxa.
+
+---
+class: inverse, center, middle
+
+# Incorporation of hierarchical information
+
+---
+
+
+# Goal
+
+* Correct explicitly for correlation between taxa.
+
+--
+
+* Increase power.
+
+--
+
+* Keep FDR under a desired level.
+
+
+---
+name: rationale
+# Rationale
+
+.footnote[📄 Philippot Andersson, et al. [Phi+10]]
+
+&lt;center&gt;
+  &lt;img src="img/coherence.png"/ width="480"&gt;
+&lt;/center&gt;
+
+---
+count: false
+# Rationale
+
+.footnote[📄 Philippot Andersson, et al. [Phi+10]]
+
+&lt;center&gt;
+  &lt;img src="img/coherence_1.png"/ width="480"&gt;
+&lt;/center&gt;
+.center[These species are associated with animals.]
+
+---
+count: false
+# Rationale
+
+.footnote[📄 Philippot Andersson, et al. [Phi+10]]
+
+&lt;center&gt;
+  &lt;img src="img/coherence_2.png"/ width="480"&gt;
+&lt;/center&gt;
+.center[These species are associated with soil.]
+
+
+---
+template: rationale
+count: false
+
+
+Already used in 
+
+* Hierarchical FDR [Yek08; SH14],
+
+* **TreeFDR [XCC17]**.
+
+
+
+---
+# z-scores smoothing with TreeFDR
+
+`\(\zs = \Phi^{-1}\left(\pv\right)\)` is the vector of observed _z_-scores and `\(\mu\)` the vector of “true” _z_-scores.
+
+--
+
+Assume a hierarchical model: `\(\left. \zs \mid \mu \right. \sim \mathcal{N}_m\left(\mu,\sigma^2 \mathbf{I}_m\right)\)` and `\(\mu \sim \mathcal{N}_m\left(\gamma \mathbf{1}_m,\tau^2C_{\rho}\right)\)` with `\(C_{\rho} = \left(\exp\left(-2\rho d_{i,j}\right)\right)_{i,j}\)`.
+
+&lt;center&gt;
+  &lt;img src="img/phylo_dist_smooth.png"/ width="1000"&gt;
+&lt;/center&gt;
+
+
+---
+# z-scores smoothing with TreeFDR
+
+Then `\(\zs \sim \mathcal{N}_m \left(\gamma \mathbf{1}_m,\tau^2 C_{\rho} + \sigma^2 \mathbf{I}_m\right)\)` by Bayes formula and the maximum a posteriori gives 
+ 
+`$$\mu^* = \left(\mathbf{I}_m + k^2 C_{\rho}^{-1}\right)\left(k^2 C_{\rho}^{-1} \gamma \mathbf{1}_m + \zs \right),$$`
+
+with `\(k = \frac{\sigma}{\tau}\)` and `\(\rho_0\)` hyperparameters to optimize.
+
+--
+
+At the end, a multiple testing correction by resampling is done on smoothed values.
+
+---
+# Which tree?
+
+* Phylogeny? Taxonomy? 
+
+😀 Proxy for correlations at high-level niches.
+
+☹️ Not so much for low-level niches?
+
+☹️ Not available every time.
+
+--
+
+.footnote[📄 Bichat Plassais, et al. [Bic+20]]
+
+* Correlation tree?
+
+😀 Actual correlation between taxa.
+  
+😀 Always available.
+  
+☹️ Risk of overfitting.
+
+
+---
+# Billera-Holmes-Vogtmann distance
+
+.footnote[📄 Billera Holmes, et al. [BHV01]] 
+
+
+.pull-left[
+  &lt;center&gt;&lt;img src="img/dBHV_4.png" height=300/&gt;&lt;/center&gt;
+]
+
+.pull-right[
+
+* Each tree is mapped into a space composed by merged orthants.
+
+* An orthant corresponds to a topology.
+
+* The BHV distance is the length of the unique shortest path between the trees on treespace.
+
+* It can be computed with a `\(O\left(m^4\right)\)` algorithm.
+]
+
+
+---
+# Quantifying distance between trees
+
+
+* Trees of primary interest:
+
+  * &lt;span style="color:#C77CFF"&gt;correlation tree on original data,&lt;/span&gt;
+  
+  * &lt;span style="color:#F8766D"&gt;phylogeny.&lt;/span&gt;
+  
+--
+
+* What is the confidence region for the correlation tree?
+
+  * &lt;span style="color:#00BFC4"&gt;correlation trees on boostrapped data (resampling on samples).&lt;/span&gt;
+
+--
+
+* Are trees significantly closer than two random trees?
+
+  * &lt;span style="color:#7CAE00"&gt;trees created by random shuffling of correlation tree tip labels,&lt;/span&gt;
+  
+  * &lt;span style="color:#FFA500"&gt;trees created by random shuffling of phylogeny tip labels.&lt;/span&gt;
+
+--
+
+We compute all pairwise distances between these trees.
+
+
+---
+# Comparisons between trees
+
+Neither phylogeny nor taxonomy is in the confident region of the correlation tree.
+
+&lt;center&gt;&lt;img src="img/foretbhv0.png" height=400/&gt;&lt;/center&gt;
+
+.footnote[📄 [Bic+20; Rav+11; Zel+14; Cha+15]]
+
+---
+count: false
+# Comparisons between trees
+
+Neither phylogeny nor taxonomy is in the confident region of the correlation tree.
+
+&lt;center&gt;&lt;img src="img/foretbhv1.png" height=400/&gt;&lt;/center&gt;
+
+.footnote[📄 [Bic+20; Rav+11; Zel+14; Cha+15]]
+
+---
+# Impact of the tree with Zeller dataset
+
+.footnote[📄 Bichat Plassais, et al. [Bic+20]; Zeller Tap, et al. [Zel+14]]
+
+All hierarchies give highly similar results.
+
+.pull-left[
+&lt;center&gt;
+  &lt;img src="img/zeller_detected.png" height=350/&gt;
+&lt;/center&gt;
+]
+
+.pull-right[
+* 119 genera
+
+* 199 patients 
+  * 66 healthy
+  * 42 adenoma
+  * 91 colorectal cancer
+]
+
+
+---
+class: inverse, center, middle
+
+# zazou
+
+### Z-scores AZ Ornstein-Uhlenbeck
+
+---
+# Ornstein-Uhlenbeck process 
+
+An Ornstein-Uhlenbeck (OU) process with an optimal value of `\(\ou{\optim}\)` and a strength of selection `\(\ou{\alpha} &gt; 0\)` is a Gaussian process that satisfies the SDE
+
+`$$\dx{W_t} = -\ou{\alpha} (W_t - \ou{\optim}) \dx{t} + \ou{\sigma}\dx{B_t}.$$`
+
+
+.pull-left[
+&lt;center&gt;
+  &lt;img src="img/ou_param.gif"/ width="350"&gt;
+&lt;/center&gt;
+]
+
+--
+
+.pull-right[
+
+`\(W_t\)` is Gaussian with bounded variance and 
+
+`$$W_t \xrightarrow[t\rightarrow\infty]{} \normal{\ou{\optim}}{\frac{\ou{\sigma}^2}{2\ou{\alpha}}}.$$`
+]
+
+
+---
+# OU process on a tree with shifts `\(\shifts\)`
+
+.footnote[📄 Bastide Mariadassou, et al. [BMR17]]
+
+&lt;center&gt;
+  &lt;img src="img/tree_ou.png"/ width="700"&gt;
+&lt;/center&gt;
+
+--
+
+* On a branch, the process behaves like on `\(\RR_+\)`.
+
+--
+
+* At each node, the process splits into two independent processes with the same initial value.
+
+--
+
+* The optimal value can shift at a node.
+
+
+
+---
+# Incidence matrix and vector of shifts
+
+.pull-left[
+&lt;center&gt;
+  &lt;img src="img/tree_ou_left.png"/ width="400"&gt;
+&lt;/center&gt;
+]
+
+
+`\(T = (\indic_{\{i \in \desc(j)\}})_{ij} \in\{0,1\}^{m \times n}\)` is the incidence matrix of the tree:
+
+$$
+`\begin{bmatrix}
+1 &amp; \color{#4aac8b}{0} &amp; \color{#cc5561}{1} &amp; \color{#bf6e3f}{1} &amp; \color{#c55d93}{1} &amp; \color{#6da148}{0} &amp; \color{#9d63cb}{0} &amp; \color{#c3a030}{0} &amp; \color{#7088c8}{0} \\
+1 &amp; \color{#4aac8b}{0} &amp; \color{#cc5561}{1} &amp; \color{#bf6e3f}{1} &amp; \color{#c55d93}{0} &amp; \color{#6da148}{1} &amp; \color{#9d63cb}{0} &amp; \color{#c3a030}{0} &amp; \color{#7088c8}{0} \\
+1 &amp; \color{#4aac8b}{0} &amp; \color{#cc5561}{1} &amp; \color{#bf6e3f}{0} &amp; \color{#c55d93}{0} &amp; \color{#6da148}{0} &amp; \color{#9d63cb}{1} &amp; \color{#c3a030}{0} &amp; \color{#7088c8}{0} \\
+1 &amp; \color{#4aac8b}{1} &amp; \color{#cc5561}{0} &amp; \color{#bf6e3f}{0} &amp; \color{#c55d93}{0} &amp; \color{#6da148}{0} &amp; \color{#9d63cb}{0} &amp; \color{#c3a030}{1} &amp; \color{#7088c8}{0} \\
+1 &amp; \color{#4aac8b}{1} &amp; \color{#cc5561}{0} &amp; \color{#bf6e3f}{0} &amp; \color{#c55d93}{0} &amp; \color{#6da148}{0} &amp; \color{#9d63cb}{0} &amp; \color{#c3a030}{0} &amp; \color{#7088c8}{1} \\
+\end{bmatrix}`
+$$
+
+--
+
+and `\(\shifts\)` the vector of shifts:
+
+`$$\begin{bmatrix} 0 &amp; \color{#4aac8b}{0} &amp; \color{#cc5561}{0} &amp; \color{#bf6e3f}{4} &amp; \color{#c55d93}{0} &amp; \color{#6da148}{0} &amp; \color{#9d63cb}{0} &amp; \color{#c3a030}{0} &amp; \color{#7088c8}{0} \end{bmatrix}^T.$$`
+--
+
+The product `\(T\delta\)` is the vector of optimal values on leaves.
+
+---
+# Random variables on leaves
+
+
+&lt;center&gt;
+  &lt;img src="img/tree_ou_right.png"/ width="800"&gt;
+&lt;/center&gt;
+
+
+The random variables on leaves are jointly Gaussian `\(\mathcal{N}_m\left(T\shifts, \Sigma \right)\)` with 
+
+`$$\Sigma_{i, j} = \frac{\ou{\sigma}^2}{2\ou{\alpha}}\left(1 - e^{-2\ou{\alpha} t_{i,j} }\right) \times e^{-\ou{\alpha} d_{i,j}}.$$`
+
+---
+# First assumption
+
+`\(\mathfrak{z}\)` is the realization of an OU on a tree with shifts `\(\delta\)`.
+
+--
+
+Then,
+
+$$
+\zs \sim \mathcal{N}_m\left(\mu,\Sigma\right)
+$$
+
+with `\(\mu = T\delta\)` and `\(\Sigma\)` depends on `\(\alpha_{\text{ou}}\)` and `\(\sigma_{\text{ou}}\)` by 
+
+`$$\Sigma_{i,j} = \frac{\ou{\sigma}^2}{2\ou{\alpha}}\left(e^{-\ou{\alpha} d_{i,j}} - e^{-2\ou{\alpha} h}\right)$$`
+
+for a tree with total height `\(h\)`.
+
+---
+name: secondassumption
+# Second assumption
+
+.footnote[📄 McLachlan and Peel [MP04]]
+
+For a taxa `\(i\)`, 
+
+* if `\(\mathcal{H}_i \in \mathbb{H}_0\)`, `\(\mathfrak{p}_i \sim \mathcal{U}(\mathopen[0,1\mathclose])\)` so `\(\mathfrak{z}_i \sim \mathcal{N}(0,1)\)`,
+
+* if `\(\mathcal{H}_i \notin \mathbb{H}_0\)`, `\(\mathfrak{p}_i \preccurlyeq \mathcal{U}(\mathopen[0,1\mathclose])\)` so `\(\mathfrak{z}_i \sim \mathcal{N}(\mu_i,1)\)` with `\(\mu_i \lt 0\)`.
+
+---
+template: secondassumption
+count: false
+
+&lt;center&gt;
+  &lt;img src="img/pvzs.png"/ width="600"&gt;
+&lt;/center&gt;
+
+---
+template: secondassumption
+count: false
+
+Then,
+
+`$$\mathfrak{z} \sim \mathcal{N}_m\left(\mu \in \RR_-^m, \Sigma\right).$$`
+
+
+One will find **differentially abundant** taxa by finding the **non-zero elements** of `\(\mu\)`.
+
+This impose `\(\Sigma_{i,i} = 1\)` so `\(\ou{\sigma}=\frac{2\ou{\alpha}}{1 - e^{-2\ou{\alpha}h}}\)`.
+
+
+---
+# Estimation of `\(\mu\)` 
+
+With `\(\Sigma\)` known, a naive ML estimator gives
+
+
+`$$\hat{\mu} = \argmin_{\mu\in\RR_-^m} \|\mathfrak{z} - \mu\|_{\Sigma^{-1}, 2}^2.$$`
+
+--
+
+To take the tree into account, `\(\hat{\mu} = T\hat{\shifts}\)` with
+
+`$$\hat{\shifts} = \argmin_{\shifts\in \RR^{n} / T\shifts \in\RR_-^m} \left\|\mathfrak{z} - T\shifts\right\|_{\Sigma^{-1},2}^2.$$`
+
+--
+
+To add hierarchically coherent sparsity in our estimate 
+
+`$$\hat{\shifts} = \argmin_{\shifts\in \RR^{n} / T\shifts \in\RR_-^m} \left\|\mathfrak{z} - T\shifts\right\|_{\Sigma^{-1},2}^2 + \lambda \|\shifts\|_1.$$`
+
+---
+# Estimation of `\(\mu\)` (bis)
+
+By Cholesky decomposition, `\(\Sigma^{-1} = R^TR\)`
+
+`\begin{align*}
+\left\|\mathfrak{z} - T\shifts\right\|_{\Sigma^{-1},2}^2 &amp; = \left(\mathfrak{z} - T\shifts\right)^T\Sigma^{-1}\left(\mathfrak{z} - T\shifts\right)  \\
+&amp; = \left(\mathfrak{z} - T\shifts\right)^TR^TR\left(\mathfrak{z} - T\shifts\right)   \\
+&amp; = \left(R\mathfrak{z} - RT\shifts\right)^T\left(R\mathfrak{z} - RT\shifts\right) \\
+&amp; = \left(y - X\shifts\right)^T\left(y - X\shifts\right) = \left\|y - X\shifts\right\|_2^2
+\end{align*}`
+
+with `\(y = R\mathfrak{z}\)` and `\(X = RT\)`.
+
+--
+
+Finally, we fall back to a constrained lasso problem:
+
+`$$\hat{\shifts} = \argmin_{\shifts\in \RR^{n} / T\shifts \in\RR_-^m} \left\|y - X\shifts\right\|_2^2 + \lambda \|\shifts\|_1.$$`
+
+---
+# Numerical resolution
+
+.footnote[📄 Fu [98]]
+
+The previous problem could be numerically solved by the shooting algorithm, **iterating unidirectional updates** form the associated problem:
+
+`\begin{equation}
+\left\{
+  \begin{aligned}
+    \argmin_{\param \in \RR} h(\param) &amp; = \frac{1}{2} \|y - z - x\param\|^2_2 + \lambda |\param| \\
+    &amp; \text{s.t. } u + v\param \leq 0.
+  \end{aligned}
+\right.
+\end{equation}`
+
+--
+
+&lt;br&gt;
+
+But `\(\Sigma\)` and `\(\lambda\)` are not yet known.
+
+---
+# Estimation of `\(\Sigma\)` and choice of `\(\lambda\)`
+
+`\(\widehat{\Sigma} = \left(\frac{e^{-\ou{\hat{\alpha}} d_{ij}} - e^{-2\ou{\hat{\alpha}} h }}{1 - e^{-2\ou{\hat{\alpha}} h }}\right)_{i,j}\)` is determined by `\(\ou{\hat{\alpha}}\)`.
+
+--
+
+&lt;br&gt;
+
+The optimal `\(\left(\ou{\alpha}, \lambda\right)\)`, is chosen on a bidimensional grid as the `\(\argmin\)` of the BIC
+
+`\begin{equation}
+\left\|\zs - T\shifts_{\ou{\alpha}, \lambda}\right\|_{\Sigma(\ou{\alpha})^{-1},2}^2 + \log|\Sigma(\ou{\alpha})| + \|\shifts_{\ou{\alpha}, \lambda}\|_0 \log m.
+\end{equation}`
+
+---
+# Effect of hierarchical smoothing
+
+
+&lt;center&gt;
+  &lt;img src="img/smoothing.png"/ width="600"&gt;
+&lt;/center&gt;
+
+
+---
+# Find non zero values
+
+Estimation from lasso provides biased estimators without confidence intervals.
+
+We need confidence intervals on `\(\hat{\shifts}\)` and `\(\hat{\mu}\)`.
+
+--
+
+&lt;br&gt;
+
+Use of a debiasing procedure
+
+* **score system (ss) [ZZ14],**
+
+* column-wise inverse (ci) [JM13; JM14].
+
+
+---
+# Scaled lasso
+
+
+The debiasing procedure requires a **initial joint estimator** of `\(\shifts^{\text{(init)}}\)` and its associated standard error `\(\sigma\)`.
+
+This can be done with a scaled lasso
+
+`$$\left(\hat{\shifts}^{\text{(init)}}, \hat{\sigma}\right) = \argmin_{\shifts, \sigma} \frac{\|y - X\shifts\|_2^2}{2\sigma n} + \frac{\sigma}{2} + \lambda \|\shifts\|_1.$$`
+
+.footnote[📄 Sun and Zhang [SZ12]]
+
+---
+# Score system
+
+The **score system** `\(S \in \RR^{n\times p}\)` associated with `\(X\)` and `\(y\)` where `\(s_j\)` is the residual of the (classical) lasso regression of `\(y\)` against `\(X_{-j}\)`:
+
+`$$s_j = y - \shifts^{-j}_{\text{lasso}} X_{-j}.$$`
+
+`\(S\)` is as **weak orthogonalisation** of `\(X\)`.
+
+---
+# Debiasing procedure 
+
+From the initial estimator `\(\hat{\shifts}_j^{\text{(init)}}\)` of the scaled lasso, one can do a **one-step correction**
+
+`$$\hat{\shifts}_j = \hat{\shifts}_j^{\text{(init)}} + \frac{\langle s_j,y-X\hat{\shifts}^{(\text{init})}\rangle}{\langle s_j,x_j\rangle}.$$`
+
+--
+
+Asymptotically, `\(\hat{\shifts} \sim \mathcal{N}_n\left(\shifts, V\right)\)` with 
+
+`$$v_{i,j} = \hat{\sigma} \frac{\langle s_i,s_j \rangle}{\langle s_i,x_i \rangle\langle s_j,x_j \rangle}.$$`
+--
+
+Then the **bilateral confidence interval** for a shift `\(\hat{\shifts}_j\)` is
+
+`$$\left[ \hat{\shifts}_j \pm \phi^{-1}\left(1-\frac{\alpha}{2}\right) \sqrt{v_{j,j}} \right].$$` 
+
+---
+# Smoothed p-values
+
+To have the **unilateral hierarchically smoothed p-values** `\(\pv^\text{h}\)`, we need to propagate the shifts with the incidence matrix `\(T\)`
+
+`$$\pv^\text{h}_i = \Phi\left(\frac{t_{i.}^T\hat{\shifts}}{\left(t_{i.}^TVt_{i.}\right)^{1/2}}\right)$$`
+
+with `\(t_{i.}\)` the `\(i^{\text{th}}\)` row of `\(T\)`.
+
+---
+# Multiple testing correction
+
+.footnote[📄 Javanmard Javadi, et al. [JJ19]]
+
+Let `\(\ts_i = \frac{t_{i.}^T\hat{\shifts}}{\left(t_{i.}^TVt_{i.}\right)^{1/2}}\)` be the `\(t\)`-scores, `\(t_{\text{max}} = \sqrt{2 \log m - 2 \log \log m}\)` and 
+
+`$$t^{\star} = \inf \bigg\{ 0 \leq t \leq t_{\max} : \underbrace{\frac{2m(1 - \Phi(t))}{R(t) \vee 1}}_{\widehat{\text{FDR}}(t)} \leq \alpha \bigg\}$$`
+
+with `\(R(t)= \sum_{i = 1}^m \indic_{\{\ts_i \leq -t\}}\)`.
+
+--
+
+One reject if `\(\ts_i \leq -t^{\star}\)` and the associated **hierarchical q-values** are
+
+`$$\qv^{\text{h}}_i = \frac{\pv^{\text{h}}_i \alpha}{\Phi(-t^{\star})}.$$`
+
+---
+# zazou overview
+
+zazou is a recipe with four steps:
+
+* a modeling of `\(z\)`-scores by an Ornstein-Uhlenbeck process on a tree with shifts,
+
+--
+
+* a constrained scaled lasso to estimate a sparse distribution of the shifts,
+
+--
+
+* a debiasing procedure for the scaled lasso,
+
+--
+
+* a debiased lasso designed multiple testing procedure.
+
+---
+class: center, middle, inverse
+
+# Evaluation of zazou
+
+
+---
+# Simulations
+
+.footnote[📄 Bichat Plassais, et al. [Bic+20]]
+
+.pull-left[
+&lt;center&gt;
+  &lt;img src="img/workflow_simu.png"/ width="430"&gt;
+&lt;/center&gt;
+]
+
+.pull-right[
+The choice of differentially abundant taxa is done in a hierarchically consistent manner.
+
+* `\(m = 127\)`, `\(p=49\)` split into two groups.
+
+* Fold-changes of `\(3\)`, `\(5\)` and `\(10\)`.
+
+* `\(5\)` estimated proportions of `\(\pi_1\)`.
+
+* `\(100\)` replicates for each parameters.
+]
+  
+
+---
+# Results
+
+`zazou` increases the TPR but does not always control the FDR.
+
+&lt;center&gt;
+  &lt;img src="img/tprfdr_zazou.png" height="450"&gt;
+&lt;/center&gt;
+
+---
+# Results
+
+`zazou` has better AUC and ROC curves.
+
+&lt;center&gt;
+  &lt;img src="img/aucroc_zazou.png" height="450"&gt;
+&lt;/center&gt;
+
+---
+# Association with age
+
+.footnote[📄 Brito Yilmaz, et al. [Bri+16]]
+
+`zazou` identifies phylogenetically coherent taxa.
+
+&lt;center&gt;
+  &lt;img src="img/age.png" height="420"&gt;
+&lt;/center&gt;
+
+
+---
+class: center, middle, inverse
+
+# Conclusions
+
+---
+# Conclusions
+
+* Phylogeny does not capture the true structure of the data.
+
+--
+
+* Previous methods (hFDR, TreeFDR) does not work in practice.
+
+--
+
+* zazou algorithm improves performances a bit ... 
+
+--
+
+* ... but the choice of the rejection threshold could be improved.
+
+--
+
+* R packages `correlationtree` and `zazou` are available on [GitHub](https://github.com/abichat).
+
+--
+
+* Articles published in [Frontiers in Microbiology](https://doi.org/10.3389/fmicb.2020.00649) and submitted in [Statistics and Computing](https://www.springer.com/journal/11222).
+
+---
+# Outlooks
+
+* More theoretical work on zazou is required.
+
+--
+
+* `zazou` could be speed up.
+
+--
+
+* Use hierarchical information during testing step, and not only correction step.
+
+--
+
+* Use the framework of prediction instead of association.
+
+---
+name: final
+class: end-slide
+
+# Thanks!
+
+## <i class="fas  fa-book "></i>  &lt;a href="https://abichat.github.io/thesis"&gt;Manuscript&lt;/a&gt;
+## <i class="fas  fa-link "></i>  &lt;a href="https://abichat.github.io" target="_blank"&gt;abichat.github.io&lt;/a&gt;
+## <i class="fab  fa-linkedin-in "></i> &lt;a href="https://www.linkedin.com/in/antoinebichat/" target="_blank"&gt;antoinebichat&lt;/a&gt;
+## <i class="fab  fa-twitter "></i> &lt;a href="https://twitter.com/_abichat" target="_blank"&gt;@_abichat&lt;/a&gt;
+## <i class="fab  fa-github "></i> &lt;a href="https://github.com/abichat" target="_blank"&gt;@abichat&lt;/a&gt;
+
+---
+# R packages 
+
+&lt;center&gt;
+  &lt;img src="img/evabic.png" height="100"&gt;
+  &lt;img src="img/yatah.png" height="100"&gt;
+  &lt;img src="img/correlationtree.png" height="100"&gt;
+&lt;/center&gt;
+
+[evabic](https://abichat.github.io/evabic) evaluates the performance of binary classifiers. It can compute compute 19 different measures with tidy outputs. 
+
+[yatah](https://abichat.github.io/yatah) provides functions to manage taxonomy when lineages are described like `k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria`. 
+
+[correlationtree](https://github.com/abichat/correlationtree) computes correlation trees. 
+
+[zazou](https://github.com/abichat/zazou) implements the zazou procedure.
+
+[hadamardown](https://github.com/abichat/hadamardown) contains the Université Paris-Saclay PhD manuscript template for `bookdown`.
+
+
+---
+# Hierarchical FDR
+
+.footnote[ 📄 Yekutieli [Yek08]; Sankaran and Holmes [SH14] ]This procedure inscreases statistical power by lessening the number of test to do with a descending method:
+* test the family `\(\mathcal{T}_0\)`,
+
+* if node `\(t\)` is rejected, test `\(\mathcal{T}_t = \left\{H_i \mid \text{Par}(i) = t\right\}\)` with a BH procedure at level `\(\alpha\)`.
+
+ &lt;center&gt;&lt;img src='img/tree_hyp_0.png' width='410'&gt;&lt;/center&gt; 
+
+---
+count: false
+# Hierarchical FDR
+.footnote[ 📄 Yekutieli [Yek08]; Sankaran and Holmes [SH14] ]This procedure inscreases statistical power by lessening the number of test to do with a descending method:
+* test the family `\(\mathcal{T}_0\)`,
+
+* if node `\(t\)` is rejected, test `\(\mathcal{T}_t = \left\{H_i \mid \text{Par}(i) = t\right\}\)` with a BH procedure at level `\(\alpha\)`.
+
+ &lt;center&gt;&lt;img src='img/tree_hyp_1.png' width='410'&gt;&lt;/center&gt; 
+
+---
+count: false
+# Hierarchical FDR
+.footnote[ 📄 Yekutieli [Yek08]; Sankaran and Holmes [SH14] ]This procedure inscreases statistical power by lessening the number of test to do with a descending method:
+* test the family `\(\mathcal{T}_0\)`,
+
+* if node `\(t\)` is rejected, test `\(\mathcal{T}_t = \left\{H_i \mid \text{Par}(i) = t\right\}\)` with a BH procedure at level `\(\alpha\)`.
+
+ &lt;center&gt;&lt;img src='img/tree_hyp_2.png' width='410'&gt;&lt;/center&gt; 
+
+---
+count: false
+# Hierarchical FDR
+.footnote[ 📄 Yekutieli [Yek08]; Sankaran and Holmes [SH14] ]This procedure inscreases statistical power by lessening the number of test to do with a descending method:
+* test the family `\(\mathcal{T}_0\)`,
+
+* if node `\(t\)` is rejected, test `\(\mathcal{T}_t = \left\{H_i \mid \text{Par}(i) = t\right\}\)` with a BH procedure at level `\(\alpha\)`.
+
+ &lt;center&gt;&lt;img src='img/tree_hyp_3.png' width='410'&gt;&lt;/center&gt; 
+
+--
+
+The FDR is controlled at level `\(\alpha' = 1.44 \times \alpha \times \frac{\#\text{discoveries } +\text{ } \#\text{families tested}}{\#\text{discoveries } +\text{ } 1}\)`.
+
+---
+# Correlation tree
+
+.pull-left[
+Matrix of pairwise correlation `\(C\)`
+
+&lt;center&gt;
+  &lt;img src="img/mat_sim.png" height="400"&gt;
+&lt;/center&gt;
+
+]
+
+.pull-right[
+Hierarchical clustering on `\(1 - C\)`
+
+&lt;center&gt;
+  &lt;img src="img/cortree.png" height="400"&gt;
+&lt;/center&gt;
+]
+
+---
+# Convergence to the correlation tree
+
+&lt;center&gt;
+  &lt;img src="img/convergence_ct.png" height="500"&gt;
+&lt;/center&gt;
+
+---
+# With Robinson-Foulds distance
+
+.footnote[📄 Robinson and Foulds [RF81]]
+
+
+&lt;center&gt;&lt;img src="img/foretrf.png" height=400/&gt;&lt;/center&gt;
+
+
+---
+# Hierarchically consistent taxa
+
+.pull-left[
+&gt; The choice of differentially abundant taxa is done in a hierarchically consistent manner.
+
+A partitioning around medoids (PAM) algorithm on the patristic distances matrix `\(\left(d_{i,j}\right)_{i,j}\)` is use for this purpose.
+
+1 to 5 clusters among 20 are selected to be differentially abundant.
+]
+
+.pull-right[
+&lt;center&gt;
+  &lt;img src="img/clusters.png" height="500"&gt;
+&lt;/center&gt;
+]
+
+---
+# Quantitative results about FDP
+
+<div class="tabwid"><table style='border-collapse:collapse;'><thead><tr style="overflow-wrap:break-word;"><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 2.00px solid rgba(0, 0, 0, 1.00);border-top: 2.00px solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">(in %)</span></p></td><td colspan="3" style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 2.00px solid rgba(0, 0, 0, 1.00);border-top: 2.00px solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">FDR</span></p></td><td colspan="3" style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 2.00px solid rgba(0, 0, 0, 1.00);border-top: 2.00px solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">P(FDP &gt; 5%)</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(255, 255, 255, 0.00);border-left: 1.00px solid rgba(255, 255, 255, 0.00);border-right: 1.00px solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:0;padding-top:0;padding-left:0;padding-right:0;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;">method</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(255, 255, 255, 0.00);border-left: 1.00px solid rgba(255, 255, 255, 0.00);border-right: 1.00px solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:0;padding-top:0;padding-left:0;padding-right:0;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;">fc = 3</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(255, 255, 255, 0.00);border-left: 1.00px solid rgba(255, 255, 255, 0.00);border-right: 1.00px solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:0;padding-top:0;padding-left:0;padding-right:0;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;">fc = 5</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(255, 255, 255, 0.00);border-left: 1.00px solid rgba(255, 255, 255, 0.00);border-right: 1.00px solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:0;padding-top:0;padding-left:0;padding-right:0;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;">fc = 10</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(255, 255, 255, 0.00);border-left: 1.00px solid rgba(255, 255, 255, 0.00);border-right: 1.00px solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:0;padding-top:0;padding-left:0;padding-right:0;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;">fc = 3</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(255, 255, 255, 0.00);border-left: 1.00px solid rgba(255, 255, 255, 0.00);border-right: 1.00px solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:0;padding-top:0;padding-left:0;padding-right:0;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;">fc = 5</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 1.00px solid rgba(190, 190, 190, 1.00);border-top: 1.00px solid rgba(255, 255, 255, 0.00);border-left: 1.00px solid rgba(255, 255, 255, 0.00);border-right: 1.00px solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:0;padding-top:0;padding-left:0;padding-right:0;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;">fc = 10</span></p></td></tr></thead><tbody><tr style="overflow-wrap:break-word;"><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">bh</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(190, 190, 190, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">2.69</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">2.46</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">3.23</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(190, 190, 190, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">4.40</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">7.20</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">12.20</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">by</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(190, 190, 190, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">0.40</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">0.36</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">0.85</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(190, 190, 190, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">0.40</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">0.60</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">2.20</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">tf</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(190, 190, 190, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">4.75</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(250, 128, 114, 1.00);background-color:transparent;">5.96</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">4.90</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(190, 190, 190, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">8.72</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">14.58</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">18.06</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">ss</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(190, 190, 190, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(250, 128, 114, 1.00);background-color:transparent;">8.17</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(250, 128, 114, 1.00);background-color:transparent;">5.26</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">3.99</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(190, 190, 190, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">12.40</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">8.40</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">8.80</span></p></td></tr><tr style="overflow-wrap:break-word;"><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 2.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">ci</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 2.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(190, 190, 190, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(250, 128, 114, 1.00);background-color:transparent;">9.41</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 2.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(250, 128, 114, 1.00);background-color:transparent;">5.98</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 2.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(250, 128, 114, 1.00);background-color:transparent;">5.63</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 2.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1.00px solid rgba(190, 190, 190, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">14.80</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 2.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">12.60</span></p></td><td style="width:108px;background-color:transparent;vertical-align: middle;border-bottom: 2.00px solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;"><p style="margin:0;text-align:center;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2px;padding-top:2px;padding-left:5px;padding-right:5px;background-color:transparent;"><span style="font-family:'Arial';font-size:20px;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(17, 17, 17, 1.00);background-color:transparent;">18.60</span></p></td></tr></tbody></table></div>
+
+
+---
+# Negative simulations
+
+When differentially abundant taxa are chosen uniformly.
+
+&lt;center&gt;
+  &lt;img src="img/auc_neg.png" height="400"&gt;
+&lt;/center&gt;
+
+---
+
+# References
+
+Bastide, P., M. Mariadassou, and S. Robin. "Detection of adaptive
+shifts on phylogenies by using shifted stochastic processes on a tree
+Series B Statistical methodology".  (2017).
+
+Benjamini, Y. and Y. Hochberg. "Controlling the false discovery rate: a
+practical and powerful approach to multiple testing". In: _Journal of
+the Royal statistical society: series B (Methodological)_ 57.1 (1995),
+pp. 289-300.
+
+Benjamini, Y. and D. Yekutieli. "The control of the false discovery
+rate in multiple testing under dependency". In: _Annals of statistics_
+(2001), pp. 1165-1188.
+
+Bichat, A., J. Plassais, C. Ambroise, and M. Mariadassou.
+"Incorporating Phylogenetic Information in Microbiome Differential
+Abundance Studies Has No Effect on Detection Power and FDR Control".
+In: _Frontiers in Microbiology_ 11 (2020), p. 649. ISSN: 1664-302X.
+---
+count: false
+# References
+Billera, L. J., S. P. Holmes, and K. Vogtmann. "Geometry of the space
+of phylogenetic trees". In: _Advances in Applied Mathematics_ 27.4
+(2001), pp. 733-767.
+
+Bokulich, N. A., J. Chung, T. Battaglia, N. Henderson, M. Jay, H. Li,
+A. D. Lieber, F. Wu, G. I. Perez-Perez, Y. Chen, and others.
+"Antibiotics, birth mode, and diet shape microbiome maturation during
+early life". In: _Science translational medicine_ 8.343 (2016), pp.
+343ra82-343ra82.
+
+Brito, I. L., S. Yilmaz, K. Huang, L. Xu, S. D. Jupiter, A. P. Jenkins,
+W. Naisilisili, M. Tamminen, C. Smillie, J. R. Wortman, and others.
+"Mobile genes in the human microbiome are structured from global to
+individual scales". In: _Nature_ 535.7612 (2016), pp. 435-439.
+
+Canani, R. B., M. Di Costanzo, L. Leone, M. Pedata, R. Meli, and A.
+Calignano. "Potential beneficial effects of butyrate in intestinal and
+extraintestinal diseases". In: _World journal of gastroenterology: WJG_
+17.12 (2011), p. 1519.
+---
+count: false
+# References
+Chaillou, S., A. Chaulot-Talmon, H. Caekebeke, M. Cardinal, S.
+Christieans, C. Denis, M. H. Desmonts, X. Dousset, C. Feurer, E. Hamon,
+and others. "Origin and ecological selection of core and food-specific
+bacterial communities associated with meat and seafood spoilage". In:
+_The ISME journal_ 9.5 (2015), pp. 1105-1118.
+
+Cryan, J. F., K. J. O'Riordan, C. S. Cowan, K. V. Sandhu, T. F.
+Bastiaanssen, M. Boehme, M. G. Codagnone, S. Cussotto, C. Fulling, A.
+V. Golubeva, and others. "The microbiota-gut-brain axis". In:
+_Physiological reviews_ 99.4 (2019), pp. 1877-2013.
+
+David, L. A., C. F. Maurice, R. N. Carmody, D. B. Gootenberg, J. E.
+Button, B. E. Wolfe, A. V. Ling, A. S. Devlin, Y. Varma, M. A.
+Fischbach, and others. "Diet rapidly and reproducibly alters the human
+gut microbiome". In: _Nature_ 505.7484 (2014), pp. 559-563.
+
+Flint, H. J., K. P. Scott, S. H. Duncan, P. Louis, and E. Forano.
+"Microbial degradation of complex carbohydrates in the gut". In: _Gut
+microbes_ 3.4 (2012), pp. 289-306.
+---
+count: false
+# References
+Fu, W. J. "Penalized regressions: the bridge versus the lasso". In:
+_Journal of computational and graphical statistics_ 7.3 (1998), pp.
+397-416.
+
+Javanmard, A., H. Javadi, and others. "False discovery rate control via
+debiased lasso". In: _Electronic Journal of Statistics_ 13.1 (2019),
+pp. 1212-1253.
+
+Javanmard, A. and A. Montanari. "Confidence intervals and hypothesis
+testing for high-dimensional regression". In: _The Journal of Machine
+Learning Research_ 15.1 (2014), pp. 2869-2909.
+
+\-\-\- "Confidence intervals and hypothesis testing for
+high-dimensional statistical models". In: _Advances in Neural
+Information Processing Systems_. 2013, pp. 1187-1195.
+---
+count: false
+# References
+Kates, A. E., O. Jarrett, J. H. Skarlupka, A. Sethi, M. Duster, L.
+Watson, G. Suen, K. Poulsen, and N. Safdar. "Household Pet Ownership
+and the Microbial Diversity of the Human Gut Microbiota". In:
+_Frontiers in Cellular and Infection Microbiology_ 10 (2020), p. 73.
+
+Ley, R. E., D. A. Peterson, and J. I. Gordon. "Ecological and
+evolutionary forces shaping microbial diversity in the human
+intestine". In: _Cell_ 124.4 (2006), pp. 837-848.
+
+McLachlan, G. J. and D. Peel. _Finite mixture models_. John Wiley &amp;
+Sons, 2004.
+
+Morgan, X. C., T. L. Tickle, H. Sokol, D. Gevers, K. L. Devaney, D. V.
+Ward, J. A. Reyes, S. A. Shah, N. LeLeiko, S. B. Snapper, and others.
+"Dysfunction of the intestinal microbiome in inflammatory bowel disease
+and treatment". In: _Genome biology_ 13.9 (2012), p. R79.
+---
+count: false
+# References
+Opstelten, J. L., J. Plassais, S. W. van Mil, E. Achouri, M. Pichaud,
+P. D. Siersema, B. Oldenburg, and A. C. Cervino. "Gut microbial
+diversity is reduced in smokers with Crohn's disease". In:
+_Inflammatory bowel diseases_ 22.9 (2016), pp. 2070-2077.
+
+Palleja, A., K. H. Mikkelsen, S. K. Forslund, A. Kashani, K. H. Allin,
+T. Nielsen, T. H. Hansen, S. Liang, Q. Feng, C. Zhang, and others.
+"Recovery of gut microbiota of healthy adults following antibiotic
+exposure". In: _Nature microbiology_ 3.11 (2018), pp. 1255-1265.
+
+Philippot, L., S. G. Andersson, T. J. Battin, J. I. Prosser, J. P.
+Schimel, W. B. Whitman, and S. Hallin. "The ecological coherence of
+high bacterial taxonomic ranks". In: _Nature Reviews Microbiology_ 8.7
+(2010), pp. 523-529.
+
+Qin, N., F. Yang, A. Li, E. Prifti, Y. Chen, L. Shao, J. Guo, E. Le
+Chatelier, J. Yao, L. Wu, and others. "Alterations of the human gut
+microbiome in liver cirrhosis". In: _Nature_ 513.7516 (2014), pp.
+59-64.
+---
+count: false
+# References
+Ravel, J., P. Gajer, Z. Abdo, G. M. Schneider, S. S. Koenig, S. L.
+McCulle, S. Karlebach, R. Gorle, J. Russell, C. O. Tacket, and others.
+"Vaginal microbiome of reproductive-age women". In: _Proceedings of the
+National Academy of Sciences_ 108.Supplement 1 (2011), pp. 4680-4687.
+
+Robinson, D. F. and L. R. Foulds. "Comparison of phylogenetic trees".
+In: _Mathematical biosciences_ 53.1-2 (1981), pp. 131-147.
+
+Sankaran, K. and S. Holmes. "structSSI: simultaneous and selective
+inference for grouped or hierarchically structured data". In: _Journal
+of statistical software_ 59.13 (2014), p. 1.
+
+Sun, T. and C. Zhang. "Scaled sparse linear regression". In:
+_Biometrika_ 99.4 (2012), pp. 879-898.
+---
+count: false
+# References
+Xiao, J., H. Cao, and J. Chen. "False discovery rate control
+incorporating phylogenetic tree increases detection power in
+microbiome-wide multiple testing". In: _Bioinformatics_ 33.18 (2017),
+pp. 2873-2881.
+
+Yatsunenko, T., F. E. Rey, M. J. Manary, I. Trehan, M. G.
+Dominguez-Bello, M. Contreras, M. Magris, G. Hidalgo, R. N. Baldassano,
+A. P. Anokhin, and others. "Human gut microbiome viewed across age and
+geography". In: _nature_ 486.7402 (2012), pp. 222-227.
+
+Yekutieli, D. "Hierarchical false discovery rate-controlling
+methodology". In: _Journal of the American Statistical Association_
+103.481 (2008), pp. 309-316.
+
+Zeller, G., J. Tap, A. Y. Voigt, S. Sunagawa, J. R. Kultima, P. I.
+Costea, A. Amiot, J. Böhm, F. Brunetti, N. Habermann, and others.
+"Potential of fecal microbiota for early-stage detection of colorectal
+cancer". In: _Molecular systems biology_ 10.11 (2014), p. 766.
+---
+count: false
+
+# References
+
+Zhang, C. and S. S. Zhang. "Confidence intervals for low dimensional
+parameters in high dimensional linear models". In: _Journal of the
+Royal Statistical Society: Series B (Statistical Methodology)_ 76.1
+(2014), pp. 217-242.
+
+Zheng, P., B. Zeng, M. Liu, J. Chen, J. Pan, Y. Han, Y. Liu, K. Cheng,
+C. Zhou, H. Wang, and others. "The gut microbiome from patients with
+schizophrenia modulates the glutamate-glutamine-GABA cycle and
+schizophrenia-relevant behaviors in mice". In: _Science advances_ 5.2
+(2019), p. eaau8317.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-0.15.0.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:10",
+"slideNumberFormat": "%current% / %total%",
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
